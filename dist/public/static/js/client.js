@@ -254,7 +254,7 @@ var App = function App(_ref) {
       init = _ref.init,
       actionGetInitialData = _ref.actionGetInitialData;
   Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(function () {
-    actionGetInitialData("Client");
+    actionGetInitialData();
   }, []);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, "Data: ", data, " ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), "Redux data: ", init.data, " ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("nav", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("ul", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("li", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_1__["NavLink"], {
     exact: true,
@@ -287,13 +287,41 @@ var mapStateToProps = function mapStateToProps(_ref2) {
 
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
-    actionGetInitialData: function actionGetInitialData(data) {
-      dispatch(Object(_store_actions_init__WEBPACK_IMPORTED_MODULE_3__["actionInitData"])(data));
+    actionGetInitialData: function actionGetInitialData() {
+      dispatch(Object(_store_actions_init__WEBPACK_IMPORTED_MODULE_3__["actionInitData"])());
     }
   };
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (Object(react_redux__WEBPACK_IMPORTED_MODULE_2__["connect"])(mapStateToProps, mapDispatchToProps)(App));
+
+/***/ }),
+
+/***/ "./src/shared/helpers/network.js":
+/*!***************************************!*\
+  !*** ./src/shared/helpers/network.js ***!
+  \***************************************/
+/*! exports provided: fetchData */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "fetchData", function() { return fetchData; });
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+ // fetch data
+
+var fetchData = function fetchData(url, options) {
+  return new Promise(function (resolve, reject) {
+    axios__WEBPACK_IMPORTED_MODULE_0___default.a.get(url, options).then(function (result) {
+      resolve(result);
+    })["catch"](function (error) {
+      reject(error);
+    });
+  });
+};
+
+
 
 /***/ }),
 
@@ -322,12 +350,20 @@ var INIT_DATA = "INIT_DATA";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "actionInitData", function() { return actionInitData; });
 /* harmony import */ var _actionTypes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../actionTypes */ "./src/shared/store/actionTypes.js");
+/* harmony import */ var _helpers_network__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../helpers/network */ "./src/shared/helpers/network.js");
 
-var actionInitData = function actionInitData(data) {
+
+var actionInitData = function actionInitData() {
   return function (dispatch) {
-    dispatch({
-      type: _actionTypes__WEBPACK_IMPORTED_MODULE_0__["INIT_DATA"],
-      data: data
+    return Object(_helpers_network__WEBPACK_IMPORTED_MODULE_1__["fetchData"])("https://jsonplaceholder.typicode.com/posts/1").then(function (data) {
+      var title = data.data.title;
+      console.log("title", title);
+      dispatch({
+        type: _actionTypes__WEBPACK_IMPORTED_MODULE_0__["INIT_DATA"],
+        data: title
+      });
+    })["catch"](function (error) {
+      console.log("error", error);
     });
   };
 };

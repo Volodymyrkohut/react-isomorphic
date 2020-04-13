@@ -10,38 +10,41 @@ import {actionInitData} from "../../shared/store/actions/init";
 const renderMiddleware = () => (req, res) => {
     const {url, store} = req;
     let html = req.html;
+    const context = {};
 
-    const routerContext = {};
     const data = "server";
 
-    store.dispatch(actionInitData("Server"));
 
+    const initData = store.dispatch(actionInitData());
 
-    const htmlContent = ReactDOMServer.renderToString(
-        <ReduxProvider store={store}>
-            <StaticRouter location={url} context={routerContext}>
-                <App data={data}/>
-            </StaticRouter>
-        </ReduxProvider>);
+    initData.then(() => {
 
-    const htmlReplacements = {
-        HTML_CONTENT: htmlContent,
-        PRELOADED_STATE: serialize(store.getState(), {isJSON: true}),
-    };
+        const htmlContent = ReactDOMServer.renderToString(
+            <ReduxProvider store={store}>
+                <StaticRouter location={url} context={context}>
+                    <App data={data}/>
+                </StaticRouter>
+            </ReduxProvider>);
 
-    Object.keys(htmlReplacements).forEach(key => {
-        const value = htmlReplacements[key];
-        html = html.replace(new RegExp('__' + escapeStringRegexp(key) + '__', 'g'), value);
+        const htmlReplacements = {
+            HTML_CONTENT: htmlContent,
+            PRELOADED_STATE: serialize(store.getState(), {isJSON: true}),
+        };
+
+        Object.keys(htmlReplacements).forEach(key => {
+            const value = htmlReplacements[key];
+            html = html.replace(new RegExp('__' + escapeStringRegexp(key) + '__', 'g'), value);
+        });
+
+        if (context.url) {
+            res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.header('Pragma', 'no-cache');
+            res.header('Expires', 0);
+            res.redirect(302, context.url);
+        } else {
+            res.send(html);
+        }
     });
-
-    if (routerContext.url) {
-        res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
-        res.header('Pragma', 'no-cache');
-        res.header('Expires', 0);
-        res.redirect(302, routerContext.url);
-    } else {
-        res.send(html);
-    }
 };
 
 export default renderMiddleware;

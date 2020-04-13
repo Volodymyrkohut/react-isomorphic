@@ -10,7 +10,7 @@ const Occupation = () => <div>occupation page</div>;
 
 const App = ({data, init, actionGetInitialData}) => {
     useEffect(() => {
-        actionGetInitialData("Client")
+        actionGetInitialData()
     }, []);
 
     return <div>
@@ -39,8 +39,8 @@ const mapStateToProps = ({init}) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        actionGetInitialData: (data) => {
-            dispatch(actionInitData(data))
+        actionGetInitialData: () => {
+            dispatch(actionInitData())
         }
     }
 };
