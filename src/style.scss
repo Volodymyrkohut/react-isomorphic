@@ -1,10 +1,15 @@
 body {
-    background-color: aqua;
+  div, a {
+    color: #000000;
+    font-size: 40px;
+    font-weight: 600;
+  }
 
-    div{
-        color:white;
-        font-size: 40px;
+  a {
+    text-decoration: none;
 
-        font-weight: 600;
+    &.active {
+      border-bottom: 3px solid black;
     }
+  }
 }
