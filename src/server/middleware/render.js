@@ -2,27 +2,34 @@ import escapeStringRegexp from 'escape-string-regexp';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import App from '../../shared/App.js';
-import {StaticRouter} from 'react-router-dom';
+import {matchPath, StaticRouter} from 'react-router-dom';
 import {Provider as ReduxProvider} from 'react-redux';
 import serialize from 'serialize-javascript';
 import {actionInitData} from "../../shared/store/actions/init";
+import routes from "../../shared/routes";
 
 const renderMiddleware = () => (req, res) => {
-    const {url, store} = req;
+    const {url, store, path} = req;
     let html = req.html;
     const context = {};
 
-    const data = "server";
-
+    const activeRoute = routes.find(route => matchPath(path, route)) || {};
+    const fetchForEachPage = activeRoute.fetchInitialData ? activeRoute.fetchInitialData(store.dispatch, url) : Promise.resolve(null);// console.log("fetchForEachPage",fetchForEachPage)
 
     const initData = store.dispatch(actionInitData());
 
-    initData.then(() => {
+
+    const wholePromise = Promise.all([
+        initData,
+        fetchForEachPage
+    ]);
+
+    wholePromise.then(() => {
 
         const htmlContent = ReactDOMServer.renderToString(
             <ReduxProvider store={store}>
                 <StaticRouter location={url} context={context}>
-                    <App data={data}/>
+                    <App/>
                 </StaticRouter>
             </ReduxProvider>);
 

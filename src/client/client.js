@@ -11,7 +11,7 @@ const store = configureStore();
 hydrate(
     <ReduxProvider store={store}>
         <BrowserRouter>
-            <App data="client"/>
+            <App/>
         </BrowserRouter>
     </ReduxProvider>,
     document.getElementById('root')

@@ -2,31 +2,34 @@ import React, {useEffect} from "react";
 import {NavLink, Switch, Route, withRouter, Redirect} from "react-router-dom";
 import {connect} from "react-redux";
 import {actionInitData} from "./store/actions/init";
+import routes from "./routes";
 
-
-const About = () => <div>about page</div>;
-const Index = () => <div>index page</div>;
-const Occupation = () => <div>occupation page</div>;
-
-const App = ({data, init, actionGetInitialData}) => {
+const App = ({init, actionGetInitialData,...restProps}) => {
     useEffect(() => {
         actionGetInitialData()
     }, []);
 
     return <div>
-        Data: {data} <br/>
+
         Redux data: {init.data} <br/>
         <nav>
             <ul>
                 <li><NavLink exact to="/">Main</NavLink></li>
                 <li><NavLink to="/about">About</NavLink></li>
-                <li><NavLink to="/occupation">Occupation</NavLink></li>
+                <li><NavLink to="/posts">posts</NavLink></li>
             </ul>
         </nav>
+
         <Switch>
-            <Route path="/" component={Index} exact={true}/>
-            <Route path="/about" component={About} exact={true}/>
-            <Route path="/occupation" component={Occupation} exact={true}/>
+            {
+                routes.map(({path, exact, component: Comp, ...rest}) => {
+                    return (
+                        <Route key={path} path={path} exact={exact} render={(props) => {
+                            return <Comp {...props} {...rest} {...restProps}/>
+                        }}/>
+                    )
+                })
+            }
         </Switch>
     </div>
 };
