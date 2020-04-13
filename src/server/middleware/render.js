@@ -3,23 +3,30 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import App from '../../shared/App.js';
 import {StaticRouter} from 'react-router-dom';
+import {Provider as ReduxProvider} from 'react-redux';
+import serialize from 'serialize-javascript';
+import {actionInitData} from "../../shared/store/actions/init";
 
 const renderMiddleware = () => (req, res) => {
-    const {url} = req;
+    const {url, store} = req;
     let html = req.html;
 
     const routerContext = {};
     const data = "server";
 
+    store.dispatch(actionInitData("Server"));
+
+
     const htmlContent = ReactDOMServer.renderToString(
-        <StaticRouter
-            location={url}
-            context={routerContext}>
-            <App data={data}/>
-        </StaticRouter>);
+        <ReduxProvider store={store}>
+            <StaticRouter location={url} context={routerContext}>
+                <App data={data}/>
+            </StaticRouter>
+        </ReduxProvider>);
 
     const htmlReplacements = {
         HTML_CONTENT: htmlContent,
+        PRELOADED_STATE: serialize(store.getState(), {isJSON: true}),
     };
 
     Object.keys(htmlReplacements).forEach(key => {
@@ -35,7 +42,6 @@ const renderMiddleware = () => (req, res) => {
     } else {
         res.send(html);
     }
-
 };
 
 export default renderMiddleware;
